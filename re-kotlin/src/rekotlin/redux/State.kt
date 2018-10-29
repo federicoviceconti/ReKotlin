@@ -1,4 +1,4 @@
-package rekotlin
+package rekotlin.redux
 
 class State<R>(var myData: R) {
     fun setState(data: R) { this.myData = data }

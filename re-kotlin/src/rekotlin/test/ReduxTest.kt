@@ -1,42 +1,67 @@
-package test
+package rekotlin.test
 
-import rekotlin.*
+import org.junit.Before
+import org.junit.Test
+import rekotlin.redux.*
 
 enum class CountType {
     INCREMENT, DECREMENT
 }
 
-fun main(args: Array<String>) {
-    TestClass().main()
+class ReduxTest {
+    lateinit var test: TestClass
+    lateinit var main: MainClass
+
+    @Before
+    fun setUp() {
+        main = MainClass()
+        test = TestClass()
+    }
+
+    @Test
+    fun incrementing() {
+        test.onClickIncrement()
+        assert(test.counter == 1)
+    }
+
+    @Test
+    fun decrementing() {
+        test.onClickDecrement()
+        assert(test.counter == 0)
+    }
+}
+
+class MainClass {
+    private val store: Store<CountType, Int>
+    private val provider: ReduxProvider<CountType, Int>
+
+    init {
+        val initState = State(0)
+        store = Store.getInstance(initState)
+        store.combineReducers(arrayListOf(CountReducer()))
+        provider = ReduxProvider(store)
+    }
 }
 
 class TestClass: Store.StoreChangeListener<Int> {
+    private val store: Store<CountType, Int> = Store.getInstance(rekotlin.redux.State(0))
+    var counter = 0
+
+    init {
+        store.subscribe(this)
+    }
+
     override fun dataChanged(prevData: State<Int>, currentData: State<Int>) {
+        counter = currentData.myData
         println("CurrentData=(prev: ${prevData.myData}, current: ${currentData.myData}) -- ${this.javaClass.simpleName}")
     }
 
-    fun main() {
-        val initState = State(0)
-        val store = Store.getInstance<CountType, Int>(initState)
-        store.subscribe(this)
-        val otherStore = Store.getInstance<CountType, Int>(initState)
-        otherStore.subscribe(this)
-        val provider = ReduxProvider(store)
+    fun onClickIncrement() {
+        store.dispatch(Action(CountType.INCREMENT, 1))
+    }
 
-        val reducer = CountReducer()
-        store.combineReducers(arrayListOf(reducer))
-
-        store.dispatch(Action(CountType.DECREMENT, data = 1))
-        println("Data: ${provider.store.data}")
-
-        otherStore.dispatch(Action(CountType.DECREMENT, data = 1))
-        println("Data: ${provider.store.data}")
-
-        store.dispatch(Action(CountType.INCREMENT, data = 1))
-        println("Data: ${provider.store.data}")
-
-        otherStore.dispatch(Action(CountType.INCREMENT, data = 1))
-        println("Data: ${provider.store.data}")
+    fun onClickDecrement() {
+        store.dispatch(Action(CountType.DECREMENT, -1))
     }
 }
 

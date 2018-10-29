@@ -1,4 +1,4 @@
-package rekotlin
+package rekotlin.redux
 
 interface ReduxStore<T, R> {
     fun dispatch(actionToDispatch: Action<T, R>)

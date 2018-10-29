@@ -1,6 +1,6 @@
-package rekotlin
+package rekotlin.redux
 
-class Store<T, R> private constructor(var data: State<R>) : ReduxStore<T, R>{
+class Store<T, R> private constructor(var data: State<R>) : ReduxStore<T, R> {
     private lateinit var reducers: List<Reducer<T, R>>
     private lateinit var listener: StoreChangeListener<R>
 
@@ -23,7 +23,7 @@ class Store<T, R> private constructor(var data: State<R>) : ReduxStore<T, R>{
             if(INSTANCE == null) {
                 INSTANCE = Store<T, R>(initValue)
             }
-            return Store.INSTANCE as Store<T, R>
+            return INSTANCE as Store<T, R>
         }
     }
 
